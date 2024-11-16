@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { User } from './../../entities/user.entity';
-import { Portfolio } from './../../entities/portfolio.entity';
-import { Share } from './../../entities/share.entity';
-import { TradeLogs } from './../../entities/trade.logs.entity';
+import { User } from '../../entities/user.entity';
+import { Portfolio } from '../../entities/portfolio.entity';
+import { Share } from '../../entities/share.entity';
+import { TradeLogs } from '../../entities/trade.logs.entity';
 import { TradeType } from '../../common/enums';
 import { faker } from '@faker-js/faker';
 
@@ -62,7 +62,7 @@ export class SeedService {
           TradeType.SELL,
         ]);
         const quantity = faker.number.int({ min: 1, max: 20 });
-        const price = share.price;
+        const price = share.price; // Şu anki fiyat
 
         // Portföydeki toplam hisse miktarını kontrol et (SELL işlemi için gerekli)
         if (type === TradeType.SELL) {
@@ -126,7 +126,7 @@ export class SeedService {
   }
 }
 
-// burası seeder mantıgında calıstıgı ıcın performans uzerıne birşey yapmadım... mantık uzerınden daha çok veri eklemesı yaptım...
+//! burası seeder mantıgında calıstıgı ıcın performans uzerıne birşey yapmadım... mantık uzerınden daha çok veri eklemesı yaptım...
 
 // Avantajlar
 // Kontrollü Çalıştırma:

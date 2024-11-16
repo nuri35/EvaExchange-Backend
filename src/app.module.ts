@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_PIPE } from '@nestjs/core';
 import { TypeOrmConfigService } from 'src/config/db.config';
 import { SeedModule } from './modules/seed/seed.module';
+import { CommandModule } from 'nestjs-command';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SeedModule } from './modules/seed/seed.module';
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
     }),
+    CommandModule,
     SeedModule,
   ],
   providers: [
