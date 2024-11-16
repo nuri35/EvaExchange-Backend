@@ -21,20 +21,3 @@ export class User extends BaseCustomEntity {
   @OneToMany(() => Portfolio, (portfolio) => portfolio.user)
   portfolios: Portfolio[];
 }
-//   @Exclude()
-//   @Column()
-//   password?: string;
-
-//   @BeforeInsert()
-//   async encryptPassword() {
-//     if (!this.password) return;
-//     this.password = await PasswordProvider.setEncrypt(this.password);
-//   }
-
-//   @AfterInsert()
-//   async deletePassword() {
-//     this.password = undefined; // Şifre alanını temizle
-//     delete this['password']; // Şifre alanını nesneden sil
-
-//     return { ...this }; // Şifresiz nesneyi döndür
-//   }
