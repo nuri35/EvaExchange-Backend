@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmOptionsFactory, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { EveryEventSubscriber } from 'src/subscribers/every.event.subscriber';
+import { EveryEventSubscriber } from './../subscribers/every.event.subscriber';
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {

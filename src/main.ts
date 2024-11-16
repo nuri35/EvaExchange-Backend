@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as compression from 'compression';
 import helmet from 'helmet';
+import { Logger } from '@nestjs/common';
 // import { GlobalExceptionFilter } from 'src/shared/http-exception.filter';
 import * as morgan from 'morgan';
 
@@ -17,6 +18,10 @@ async function bootstrap() {
 
   app.use(helmet());
   app.use(compression());
+
+  // Global Logger
+  const logger = new Logger('Bootstrap');
+  app.useLogger(logger); // Logger'ı tüm uygulamaya entegre et
 
   // const reflector = app.get(Reflector);
 
@@ -38,6 +43,8 @@ async function bootstrap() {
   // const document = SwaggerModule.createDocument(app, config);
   // SwaggerModule.setup('api/v1/docs', app, document);
 
+  logger.log('Starting the application...');
   await app.listen(8000);
+  logger.log(`Application is running on: http://localhost:3000`);
 }
 bootstrap();

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { User } from '../../entities/user.entity';
 import { Portfolio } from '../../entities/portfolio.entity';
@@ -6,21 +6,23 @@ import { Share } from '../../entities/share.entity';
 import { TradeLogs } from '../../entities/trade.logs.entity';
 import { TradeType } from '../../common/enums';
 import { faker } from '@faker-js/faker';
+import { TryCatch } from 'src/decorators/try.catch';
 
 @Injectable()
 export class SeedService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly logger: Logger, // Logger inject edildi
+  ) {}
 
+  @TryCatch()
   async seedDatabase() {
     const userRepo = this.dataSource.getRepository(User);
     const portfolioRepo = this.dataSource.getRepository(Portfolio);
     const shareRepo = this.dataSource.getRepository(Share);
     const tradeLogRepo = this.dataSource.getRepository(TradeLogs);
 
-    console.log('Starting database seeding...');
-
-    // 1. Faker.js ile kullanıcıları oluştur
-
+    // 1. Kullanıcıları oluştur
     const users = await userRepo.save(
       Array.from({ length: 5 }).map(() => ({
         name: faker.name.fullName(),
@@ -29,45 +31,45 @@ export class SeedService {
         address: faker.location.streetAddress(),
       })),
     );
-    //seed ıcın yaptıgım ıcın array ıcınde mapliyor burası ıcın save metotlarına cok odaklanmamıza gerek yok...sadece typeorm metotlarını kullandım raw sql kullanmadım..  normal service içerisinde  arrayli kaydetmeleri for dongusu vs için yapmazdım...
+    this.logger.log(`Users created!!!!!`);
 
-    console.log('Users created:', users);
-
-    // 2. Faker.js ile hisseleri oluştur
+    // 2. Hisseleri oluştur
     const shares = await shareRepo.save(
       Array.from({ length: 5 }).map(() => ({
-        name: faker.company.name(), // Şirket ismi
-        symbol: faker.string.alpha({ length: 3, casing: 'upper' }), // 3 harfli büyük harf sembol
+        name: faker.company.name(),
+        symbol: faker.string.alpha({ length: 3, casing: 'upper' }),
         price: parseFloat(faker.finance.amount()),
       })),
     );
-
-    console.log('Shares created:', shares);
+    this.logger.log(`Shares created!!!!!`);
 
     // 3. Portföyleri oluştur ve işlemleri ekle
     for (const user of users) {
-      // Portföy oluştur
       const portfolio = await portfolioRepo.save({
         name: `${user.name}'s Portfolio`,
         user,
-        totalValue: 0, // Başlangıç değeri
+        totalValue: 0,
       });
+      this.logger.log(
+        `Portfolio created for user: ${user.name}, Portfolio: ${JSON.stringify(
+          portfolio,
+        )}`,
+      );
 
-      console.log(`Portfolio created for user: ${user.name}`, portfolio);
-
-      // İşlemleri oluştur ve işle
       const tradeLogsPromises = shares.map(async (share) => {
         const type = faker.helpers.arrayElement([
           TradeType.BUY,
           TradeType.SELL,
         ]);
         const quantity = faker.number.int({ min: 1, max: 20 });
-        const price = share.price; // Şu anki fiyat
+        const price = share.price;
 
-        // Portföydeki toplam hisse miktarını kontrol et (SELL işlemi için gerekli)
         if (type === TradeType.SELL) {
           const existingLogs = await tradeLogRepo.find({
-            where: { portfolio: { id: portfolio.id }, share: { id: share.id } },
+            where: {
+              portfolio: { id: portfolio.id },
+              share: { id: share.id },
+            },
           });
 
           const totalBought = existingLogs
@@ -81,14 +83,13 @@ export class SeedService {
           const currentQuantity = totalBought - totalSold;
 
           if (quantity > currentQuantity) {
-            console.log(
+            this.logger.warn(
               `Insufficient shares for SELL operation on portfolio ${portfolio.name} for share ${share.name}. Available: ${currentQuantity}, required: ${quantity}`,
             );
             return;
           }
         }
 
-        // İşlemi kaydet
         await tradeLogRepo.save({
           portfolio,
           share,
@@ -97,7 +98,6 @@ export class SeedService {
           price,
         });
 
-        // TotalValue'yi güncelle
         if (type === TradeType.BUY) {
           await this.dataSource.manager.increment(
             Portfolio,
@@ -114,15 +114,13 @@ export class SeedService {
           );
         }
 
-        console.log(
+        this.logger.log(
           `${type} operation performed on portfolio ${portfolio.name} for share ${share.name}. Quantity: ${quantity}, Price: ${price}`,
         );
       });
 
       await Promise.all(tradeLogsPromises);
     }
-
-    console.log('Database seeding completed successfully.');
   }
 }
 
