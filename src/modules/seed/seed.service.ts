@@ -8,9 +8,6 @@ import { TradeType } from '../../common/enums';
 import { faker } from '@faker-js/faker';
 import { TryCatch } from 'src/decorators/try.catch';
 
-//!task analız edildi 2 onemlı endpoint yapıalcak.. ılk  Trade Logs yazabilriz.
-// bir hisse yönetim endpoint'i gerekebilir. saatlik hisse fiyatları adına en son bakılacak.. kullanıcları saatlık olarak price update edecek..
-// Evet, ılk  Trade Logs yazabilriz. için bir endpoint şart. ve istedıklerı case'lere dikkat edecegız..
 @Injectable()
 export class SeedService {
   constructor(
