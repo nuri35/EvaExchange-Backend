@@ -1,12 +1,12 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import { Logger } from '@nestjs/common';
-// import { GlobalExceptionFilter } from 'src/shared/http-exception.filter';
 import * as morgan from 'morgan';
+import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { GlobalExceptionFilter } from './shared/http-exception.filter';
 
-// import { ResponseInterceptor } from './interceptors/response.interceptor';
 // import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 // import { apiDescription } from './document/description';
 
@@ -23,10 +23,10 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   app.useLogger(logger); // Logger'ı tüm uygulamaya entegre et
 
-  // const reflector = app.get(Reflector);
+  const reflector = app.get(Reflector);
 
-  // app.useGlobalFilters(new GlobalExceptionFilter());
-  // app.useGlobalInterceptors(new ResponseInterceptor(reflector));
+  app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalInterceptors(new ResponseInterceptor(reflector));
 
   (app as any).set('etag', false);
   app.use((req, res, next) => {

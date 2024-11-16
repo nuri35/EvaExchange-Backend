@@ -4,6 +4,7 @@ import { PortfolioRepository } from 'src/repository/portfolio.repo';
 import { ShareRepository } from 'src/repository/share.repo';
 import { UserRepository } from 'src/repository/user.repo';
 import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
+import { TryCatch } from 'src/decorators/try.catch';
 
 @Injectable()
 export class ExchangeService {
@@ -21,6 +22,8 @@ export class ExchangeService {
     private readonly tradeLogsRepo: TradeLogsRepository,
   ) {}
 
+  //
+  @TryCatch()
   async trade() {}
 }
 
