@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_PIPE } from '@nestjs/core';
 import { TypeOrmConfigService } from 'src/config/db.config';
-// import { ScheduleModule } from 'src/modules/schedule/schedule.module';
+import { SeedModule } from './modules/seed/seed.module';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { TypeOrmConfigService } from 'src/config/db.config';
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
     }),
-    // ScheduleModule, example for module import
+    SeedModule,
   ],
   providers: [
     {

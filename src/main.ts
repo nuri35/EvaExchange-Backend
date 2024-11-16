@@ -4,6 +4,7 @@ import * as compression from 'compression';
 import helmet from 'helmet';
 // import { GlobalExceptionFilter } from 'src/shared/http-exception.filter';
 import * as morgan from 'morgan';
+
 // import { ResponseInterceptor } from './interceptors/response.interceptor';
 // import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 // import { apiDescription } from './document/description';
@@ -16,6 +17,7 @@ async function bootstrap() {
 
   app.use(helmet());
   app.use(compression());
+
   // const reflector = app.get(Reflector);
 
   // app.useGlobalFilters(new GlobalExceptionFilter());
