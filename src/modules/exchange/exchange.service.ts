@@ -49,6 +49,12 @@ export class ExchangeService {
         'Portfolio not found or does not belong to the user',
       );
     }
+
+    // 3. Hisse Doğrulama
+    const share = await this.shareRepo.customFindOne(dto.shareId);
+    if (!share) {
+      throw new BadRequestException('Share not found');
+    }
   }
 }
 

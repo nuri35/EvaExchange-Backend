@@ -7,4 +7,8 @@ export class ShareRepository extends Repository<Share> {
   constructor(private dataSource: DataSource) {
     super(Share, dataSource.createEntityManager());
   }
+
+  async customFindOne(shareId: number) {
+    return await this.findOne({ where: { id: shareId } });
+  }
 }
