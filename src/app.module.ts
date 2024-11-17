@@ -5,6 +5,7 @@ import { APP_PIPE } from '@nestjs/core';
 import { TypeOrmConfigService } from './config/db.config';
 import { ExchangeModule } from './modules/exchange/exchange.module';
 import { SeedModule } from './modules/seed/seed.module';
+import { ShareModule } from './modules/share/share.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SeedModule } from './modules/seed/seed.module';
     }),
     SeedModule,
     ExchangeModule,
+    ShareModule,
   ],
 
   providers: [

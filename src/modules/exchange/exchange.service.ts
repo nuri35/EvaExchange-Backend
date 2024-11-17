@@ -29,7 +29,7 @@ export class ExchangeService {
 
   @TryCatch()
   async trade(dto: CreateExchangeDto) {
-    const { userId } = dto;
+    const { userId, type, quantity } = dto;
 
     // 1. Kullanıcı Doğrulama
     //? aslında dto.userId dışardan vermek yerıne jwt ara katmanda publıcId deceode edip redis yada postgresde istek atarak  user kotnrol edilip ordan userId alınabilir... ben daha cok alım satım işlemlerıne odaklandım...
@@ -55,6 +55,26 @@ export class ExchangeService {
     if (!share) {
       throw new BadRequestException('Share not found');
     }
+
+    // 4. Fiyat Güncellenme Zamanı Kontrolü
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000); // 1 saat önce
+    //not: projede share tablosunda başka bir alan guncellenmedıgı ıcın updatedAt alanını kullandım..
+    if (share.updatedAt < oneHourAgo) {
+      throw new BadRequestException(
+        'The price for this share is outdated. Please update the price before trading.',
+      );
+    }
+    //todo share prica update endpointi yazıldı bu guncel olma olayı test edilcek kontrol edilcek sorna alım bıtmıs olcak satıma gecılcek
+    const price = share.price; // Güncel fiyat
+
+    // 5. Trade Log Kaydı
+    await this.tradeLogsRepo.save({
+      portfolio,
+      share,
+      type,
+      quantity,
+      price, // Güncel fiyat kullanılıyor
+    });
   }
 }
 
