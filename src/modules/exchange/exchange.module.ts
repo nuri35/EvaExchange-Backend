@@ -9,16 +9,15 @@ import { ShareRepository } from 'src/repository/share.repo';
 import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      UserRepository,
-      PortfolioRepository,
-      ShareRepository,
-      TradeLogsRepository,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([])],
   controllers: [ExchangeController],
-  providers: [ExchangeService],
+  providers: [
+    ExchangeService,
+    UserRepository,
+    PortfolioRepository,
+    ShareRepository,
+    TradeLogsRepository,
+  ],
   exports: [ExchangeService], // Eğer başka modüllerde kullanılacaksa
 })
 export class ExchangeModule {}

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PortfolioRepository } from 'src/repository/portfolio.repo';
 import { ShareRepository } from 'src/repository/share.repo';
@@ -23,13 +23,18 @@ export class ExchangeService {
     private readonly tradeLogsRepo: TradeLogsRepository,
   ) {}
 
-  //
   @TryCatch()
   async trade(dto: CreateExchangeDto) {
-    return dto;
+    const { userId } = dto;
+
+    // 1. Kullanıcı Doğrulama
+
+    const user = await this.userRepo.customFindOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
   }
 }
 
-//!task analız edildi 2 onemlı endpoint yapıalcak.. ılk  Trade Logs yazabilriz. dırek bu endpointten başlarız ve logiclerini service yazarak ilerleriz....
 // bir hisse yönetim endpoint'i gerekebilir. saatlik hisse fiyatları adına en son bakılacak.. kullanıcları saatlık olarak price update edecek..
-// Evet, ılk  Trade Logs yazabilriz. için bir endpoint şart. ve istedıklerı case'lere dikkat edecegız..
