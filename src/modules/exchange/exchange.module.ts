@@ -2,13 +2,20 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExchangeController } from './exchange.controller';
 import { ExchangeService } from './exchange.service';
-import { Portfolio } from '../../entities/portfolio.entity';
-import { Share } from '../../entities/share.entity';
-import { TradeLogs } from '../../entities/trade.logs.entity';
+
+import { UserRepository } from 'src/repository/user.repo';
+import { PortfolioRepository } from 'src/repository/portfolio.repo';
+import { ShareRepository } from 'src/repository/share.repo';
+import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TradeLogs, Portfolio, Share]), // Gerekli entity'ler
+    TypeOrmModule.forFeature([
+      UserRepository,
+      PortfolioRepository,
+      ShareRepository,
+      TradeLogsRepository,
+    ]),
   ],
   controllers: [ExchangeController],
   providers: [ExchangeService],

@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_PIPE } from '@nestjs/core';
 import { TypeOrmConfigService } from './config/db.config';
-
+import { ExchangeModule } from './modules/exchange/exchange.module';
 import { SeedModule } from './modules/seed/seed.module';
 
 @Module({
@@ -15,6 +15,7 @@ import { SeedModule } from './modules/seed/seed.module';
       useClass: TypeOrmConfigService,
     }),
     SeedModule,
+    ExchangeModule,
   ],
 
   providers: [

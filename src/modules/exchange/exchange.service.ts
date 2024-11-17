@@ -5,6 +5,7 @@ import { ShareRepository } from 'src/repository/share.repo';
 import { UserRepository } from 'src/repository/user.repo';
 import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
 import { TryCatch } from 'src/decorators/try.catch';
+import CreateExchangeDto from './dto/exchange.dto';
 
 @Injectable()
 export class ExchangeService {
@@ -24,7 +25,9 @@ export class ExchangeService {
 
   //
   @TryCatch()
-  async trade() {}
+  async trade(dto: CreateExchangeDto) {
+    return dto;
+  }
 }
 
 //!task analız edildi 2 onemlı endpoint yapıalcak.. ılk  Trade Logs yazabilriz. dırek bu endpointten başlarız ve logiclerini service yazarak ilerleriz....
