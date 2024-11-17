@@ -10,6 +10,9 @@ export class UserRepository extends Repository<User> {
 
   async customFindOne(userId: number) {
     return this.findOne({
+      select: {
+        id: true,
+      },
       where: {
         id: userId,
       },

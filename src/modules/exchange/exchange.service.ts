@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PortfolioRepository } from 'src/repository/portfolio.repo';
 import { ShareRepository } from 'src/repository/share.repo';
@@ -28,11 +32,22 @@ export class ExchangeService {
     const { userId } = dto;
 
     // 1. Kullanıcı Doğrulama
-
+    //? aslında dto.userId dışardan vermek yerıne jwt ara katmanda publıcId deceode edip redis yada postgresde istek atarak  user kotnrol edilip ordan userId alınabilir... ben daha cok alım satım işlemlerıne odaklandım...
     const user = await this.userRepo.customFindOne(userId);
 
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
+    }
+
+    // 2. Portföy Doğrulama
+    const portfolio = await this.portfolioRepo.customFindOne(
+      dto.portfolioId,
+      user.id,
+    );
+    if (!portfolio) {
+      throw new BadRequestException(
+        'Portfolio not found or does not belong to the user',
+      );
     }
   }
 }

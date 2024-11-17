@@ -26,6 +26,7 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
 
   app.useGlobalFilters(new GlobalExceptionFilter());
+
   app.useGlobalInterceptors(new ResponseInterceptor(reflector));
 
   (app as any).set('etag', false);
