@@ -64,7 +64,7 @@ export class ExchangeService {
         'The price for this share is outdated. Please update the price before trading.',
       );
     }
-    //todo share prica update endpointi yazıldı bu guncel olma olayı test edilcek kontrol edilcek sorna alım bıtmıs olcak satıma gecılcek
+    //todo anladıgım kadarıyla bu sekılde calsııyor mantık olarak ... yarın bı kısa bakıp artık satış kısmına gecersın  ona göre kodların eklersın... biter enson....
     const price = share.price; // Güncel fiyat
 
     // 5. Trade Log Kaydı
@@ -79,3 +79,17 @@ export class ExchangeService {
 }
 
 // bir hisse yönetim endpoint'i gerekebilir. saatlik hisse fiyatları adına en son bakılacak.. kullanıcları saatlık olarak price update edecek..
+
+// tradelogs tablonda alıcı satıcı ıslem mıktar o kademedekı fıyat durur...
+// hisse tablosuna
+
+// saatlık bılgı en son oluşan tradelogsdakı kayıt price larak  ...
+
+// tradelogs kaydı yok hıc kayıt yok hissedekı price ı al...
+
+//saatlık bılgıde
+
+//tiker
+
+// tradelogs tablosunda alım satım tek bır rowda olmas lazım ayrı ayrı degıl..
+// biri alan biri satan.... alan tarafın bilgisi satan bilgisini  vs zaman damgasını koycaksın

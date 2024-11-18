@@ -9,6 +9,13 @@ export class ShareRepository extends Repository<Share> {
   }
 
   async customFindOne(shareId: number) {
-    return await this.findOne({ where: { id: shareId } });
+    return await this.findOne({
+      select: {
+        id: true,
+        price: true,
+        updatedAt: true,
+      },
+      where: { id: shareId },
+    });
   }
 }
