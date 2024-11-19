@@ -10,6 +10,9 @@ import { UserRepository } from 'src/repository/user.repo';
 import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
 import { TryCatch } from 'src/decorators/try.catch';
 import CreateExchangeDto from './dto/exchange.dto';
+import { TradeType } from 'src/common/enums';
+import { Portfolio } from 'src/entities/portfolio.entity';
+import { Share } from 'src/entities/share.entity';
 
 @Injectable()
 export class ExchangeService {
@@ -31,8 +34,6 @@ export class ExchangeService {
   async trade(dto: CreateExchangeDto) {
     const { userId, type, quantity } = dto;
 
-    // 1. Kullanıcı Doğrulama
-    //? aslında dto.userId dışardan vermek yerıne jwt ara katmanda publıcId deceode edip redis yada postgresde istek atarak  user kotnrol edilip ordan userId alınabilir... ben daha cok alım satım işlemlerıne odaklandım...
     const user = await this.userRepo.customFindOne(userId);
 
     if (!user) {
@@ -64,32 +65,59 @@ export class ExchangeService {
         'The price for this share is outdated. Please update the price before trading.',
       );
     }
-    //todo anladıgım kadarıyla bu sekılde calsııyor mantık olarak ... yarın bı kısa bakıp artık satış kısmına gecersın  ona göre kodların eklersın... biter enson....
+
     const price = share.price; // Güncel fiyat
 
-    // 5. Trade Log Kaydı
+    if (type === TradeType.SELL) {
+      const canSell = await this.checkSellConditions(
+        portfolio,
+        share,
+        quantity,
+      );
+      if (!canSell) {
+        throw new BadRequestException('Insufficient quantity to sell');
+      }
+    }
+
     await this.tradeLogsRepo.save({
       portfolio,
       share,
       type,
       quantity,
-      price, // Güncel fiyat kullanılıyor
+      price,
     });
   }
+
+  /**
+   * Satış işlemi için gerekli doğrulamaları yapar.
+   */
+  private async checkSellConditions(
+    portfolio: Portfolio,
+    share: Share,
+    quantity: number,
+  ): Promise<boolean> {
+    const result = await this.tradeLogsRepo
+      .createQueryBuilder('tradeLog')
+      .select(
+        'SUM(CASE WHEN tradeLog.type = :buy THEN tradeLog.quantity ELSE 0 END)',
+        'totalBought',
+      )
+      .addSelect(
+        'SUM(CASE WHEN tradeLog.type = :sell THEN tradeLog.quantity ELSE 0 END)',
+        'totalSold',
+      )
+      .where('tradeLog.portfolioId = :portfolioId', {
+        portfolioId: portfolio.id,
+      })
+      .andWhere('tradeLog.shareId = :shareId', { shareId: share.id })
+      .setParameters({ buy: TradeType.BUY, sell: TradeType.SELL })
+      .getRawOne();
+
+    const totalBought = parseInt(result.totalBought || '0', 10);
+    const totalSold = parseInt(result.totalSold || '0', 10);
+
+    const availableQuantity = totalBought - totalSold;
+
+    return quantity <= availableQuantity;
+  }
 }
-
-// bir hisse yönetim endpoint'i gerekebilir. saatlik hisse fiyatları adına en son bakılacak.. kullanıcları saatlık olarak price update edecek..
-
-// tradelogs tablonda alıcı satıcı ıslem mıktar o kademedekı fıyat durur...
-// hisse tablosuna
-
-// saatlık bılgı en son oluşan tradelogsdakı kayıt price larak  ...
-
-// tradelogs kaydı yok hıc kayıt yok hissedekı price ı al...
-
-//saatlık bılgıde
-
-//tiker
-
-// tradelogs tablosunda alım satım tek bır rowda olmas lazım ayrı ayrı degıl..
-// biri alan biri satan.... alan tarafın bilgisi satan bilgisini  vs zaman damgasını koycaksın
