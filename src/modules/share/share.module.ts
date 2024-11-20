@@ -5,6 +5,7 @@ import { ShareService } from './share.service';
 import { ShareRepository } from 'src/repository/share.repo';
 import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
 import { ShareHelperService } from './helper';
+import { AverageCalculator } from 'src/solid-principle/subClass/average.calculator';
 
 @Module({
   imports: [TypeOrmModule.forFeature([])],
@@ -14,6 +15,7 @@ import { ShareHelperService } from './helper';
     ShareRepository,
     TradeLogsRepository,
     ShareHelperService,
+    AverageCalculator,
   ],
   exports: [ShareService], // Eğer başka modüllerde kullanılacaksa
 })

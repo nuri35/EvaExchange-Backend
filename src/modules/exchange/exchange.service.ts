@@ -13,6 +13,7 @@ import CreateExchangeDto from './dto/exchange.dto';
 import { TradeType } from 'src/common/enums';
 import { Portfolio } from 'src/entities/portfolio.entity';
 import { Share } from 'src/entities/share.entity';
+import { TotalCalculator } from './../../solid-principle/subClass/total.calculate';
 
 @Injectable()
 export class ExchangeService {
@@ -28,6 +29,8 @@ export class ExchangeService {
 
     @InjectRepository(TradeLogsRepository)
     private readonly tradeLogsRepo: TradeLogsRepository,
+
+    private readonly totalCalculator: TotalCalculator,
   ) {}
 
   @TryCatch()
@@ -87,28 +90,11 @@ export class ExchangeService {
     share: Share,
     quantity: number,
   ): Promise<boolean> {
-    const result = await this.tradeLogsRepo
-      .createQueryBuilder('tradeLog')
-      .select(
-        'SUM(CASE WHEN tradeLog.type = :buy THEN tradeLog.quantity ELSE 0 END)',
-        'totalBought',
-      )
-      .addSelect(
-        'SUM(CASE WHEN tradeLog.type = :sell THEN tradeLog.quantity ELSE 0 END)',
-        'totalSold',
-      )
-      .where('tradeLog.portfolioId = :portfolioId', {
-        portfolioId: portfolio.id,
-      })
-      .andWhere('tradeLog.shareId = :shareId', { shareId: share.id })
-      .setParameters({ buy: TradeType.BUY, sell: TradeType.SELL })
-      .getRawOne();
+    const result = await this.tradeLogsRepo.getTotalBoughtAndSold(
+      portfolio.id,
+      share.id,
+    );
 
-    const totalBought = parseInt(result.totalBought || '0', 10);
-    const totalSold = parseInt(result.totalSold || '0', 10);
-
-    const availableQuantity = totalBought - totalSold;
-
-    return quantity <= availableQuantity;
+    return this.totalCalculator.run(result, quantity);
   }
 }

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ShareRepository } from 'src/repository/share.repo';
 import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
 import { ShareHelperService } from './helper';
+import { AverageCalculator } from 'src/solid-principle/subClass/average.calculator';
 
 @Injectable()
 export class ShareService {
@@ -12,6 +13,7 @@ export class ShareService {
     @InjectRepository(TradeLogsRepository)
     private readonly tradeLogsRepo: TradeLogsRepository,
     private readonly shareHelperService: ShareHelperService,
+    private readonly averageCalculator: AverageCalculator,
   ) {}
 
   async updatePrice(id: number) {
@@ -35,10 +37,12 @@ export class ShareService {
       share,
     );
 
-    const newPrice = this.shareHelperService.calculateNewPrice(
-      tradeData,
-      share.price,
-    );
+    const newPrice = this.averageCalculator.run(tradeData);
+
+    if (newPrice === 0) {
+      return { newPrice: share.price, message: 'Price not updated' };
+    }
+
     await this.shareRepo.updateNewPrice(share, newPrice);
 
     return { newPrice: share.price, message: 'Price updated successfully' };

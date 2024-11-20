@@ -14,19 +14,4 @@ export class ShareHelperService {
   getTimeRange(): Date {
     return new Date(Date.now() - 60 * 60 * 1000); // Son bir saat
   }
-
-  calculateNewPrice(
-    tradeData: { buyAverage: string; sellAverage: string },
-    currentPrice: number,
-  ): number {
-    const buyAverage = parseFloat(tradeData.buyAverage || '0');
-    const sellAverage = parseFloat(tradeData.sellAverage || '0');
-
-    if (!buyAverage && !sellAverage) {
-      return currentPrice; // Eğer işlem yoksa mevcut fiyatı koru
-    }
-
-    const averagePrice = (buyAverage + sellAverage) / 2;
-    return parseFloat(averagePrice.toFixed(2)); // 2 ondalık basamak
-  }
 }
