@@ -18,4 +18,9 @@ export class ShareRepository extends Repository<Share> {
       where: { id: shareId },
     });
   }
+
+  async updateNewPrice(share: Share, newPrice: number) {
+    share.price = newPrice;
+    await this.save(share);
+  }
 }

@@ -1,18 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TradeType } from 'src/common/enums';
-import { TradeLogs } from 'src/entities/trade.logs.entity';
-
 import { ShareRepository } from 'src/repository/share.repo';
-import { Repository } from 'typeorm';
+import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
+import { ShareHelperService } from './helper';
 
 @Injectable()
 export class ShareService {
   constructor(
     @InjectRepository(ShareRepository)
     private readonly shareRepo: ShareRepository,
-    @InjectRepository(TradeLogs)
-    private readonly tradeLogsRepo: Repository<TradeLogs>,
+    @InjectRepository(TradeLogsRepository)
+    private readonly tradeLogsRepo: TradeLogsRepository,
+    private readonly shareHelperService: ShareHelperService,
   ) {}
 
   async updatePrice(id: number) {
@@ -21,8 +20,9 @@ export class ShareService {
       throw new BadRequestException('Share not found');
     }
 
-    const updateInterval = parseInt(process.env.UPDATE_INTERVAL || '3600'); // Varsayılan: 3600 saniye (1 saat)
-    const allowableUpdateTime = new Date(Date.now() - updateInterval * 1000);
+    const updateInterval = this.shareHelperService.getUpdateInterval();
+    const allowableUpdateTime =
+      this.shareHelperService.getAllowableUpdateTime(updateInterval);
 
     if (share.updatedAt >= allowableUpdateTime) {
       throw new BadRequestException(
@@ -30,40 +30,16 @@ export class ShareService {
       );
     }
 
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const tradeData = await this.tradeLogsRepo.getAveragePrice(
+      this.shareHelperService.getTimeRange(),
+      share,
+    );
 
-    // Alım ve Satım Ortalama Fiyatlarını SQL ile Hesapla
-    const result = await this.tradeLogsRepo
-      .createQueryBuilder('tradeLog')
-      .select(
-        `AVG(CASE WHEN tradeLog.type = :buy THEN tradeLog.price ELSE NULL END)`,
-        'buyAverage',
-      )
-      .addSelect(
-        `AVG(CASE WHEN tradeLog.type = :sell THEN tradeLog.price ELSE NULL END)`,
-        'sellAverage',
-      )
-      .where('tradeLog.shareId = :shareId', { shareId: share.id })
-      .andWhere('tradeLog.createdAt > :oneHourAgo', { oneHourAgo })
-      .setParameters({ buy: TradeType.BUY, sell: TradeType.SELL })
-      .getRawOne();
-
-    const buyAverage = parseFloat(result.buyAverage || '0');
-    const sellAverage = parseFloat(result.sellAverage || '0');
-
-    // Eğer hiç işlem yoksa mevcut fiyatı koru
-    if (!buyAverage && !sellAverage) {
-      return {
-        message: 'No trades found in the last hour. Price remains unchanged.',
-        currentPrice: share.price,
-      };
-    }
-
-    const newPrice = (buyAverage + sellAverage) / 2;
-
-    // Share Tablosunu Güncelle
-    share.price = parseFloat(newPrice.toFixed(2)); // 2 ondalık basamak
-    await this.shareRepo.save(share);
+    const newPrice = this.shareHelperService.calculateNewPrice(
+      tradeData,
+      share.price,
+    );
+    await this.shareRepo.updateNewPrice(share, newPrice);
 
     return { newPrice: share.price, message: 'Price updated successfully' };
   }

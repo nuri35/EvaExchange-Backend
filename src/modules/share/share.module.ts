@@ -3,12 +3,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShareController } from './share.controller';
 import { ShareService } from './share.service';
 import { ShareRepository } from 'src/repository/share.repo';
-import { TradeLogs } from 'src/entities/trade.logs.entity';
+import { TradeLogsRepository } from 'src/repository/trade.logs.repo';
+import { ShareHelperService } from './helper';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TradeLogs])],
+  imports: [TypeOrmModule.forFeature([])],
   controllers: [ShareController],
-  providers: [ShareService, ShareRepository],
+  providers: [
+    ShareService,
+    ShareRepository,
+    TradeLogsRepository,
+    ShareHelperService,
+  ],
   exports: [ShareService], // Eğer başka modüllerde kullanılacaksa
 })
 export class ShareModule {}
