@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TradeType } from 'src/common/enums';
 import { TradeLogs } from 'src/entities/trade.logs.entity';
@@ -55,11 +51,13 @@ export class ShareService {
     const buyAverage = parseFloat(result.buyAverage || '0');
     const sellAverage = parseFloat(result.sellAverage || '0');
 
-    // Yeni Fiyatı Hesapla
+    // Eğer hiç işlem yoksa mevcut fiyatı koru
     if (!buyAverage && !sellAverage) {
-      throw new NotFoundException('No trades found in the last hour');
+      return {
+        message: 'No trades found in the last hour. Price remains unchanged.',
+        currentPrice: share.price,
+      };
     }
-    console.log(result);
 
     const newPrice = (buyAverage + sellAverage) / 2;
 

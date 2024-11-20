@@ -61,10 +61,12 @@ export class SeedService {
           TradeType.BUY,
           TradeType.SELL,
         ]);
+
         const quantity = faker.number.int({ min: 1, max: 20 });
-        const price = share.price;
+        const price = parseFloat(share.price.toFixed(2)); // Price 2 ondalık basamaklı olmalı
 
         if (type === TradeType.SELL) {
+          // SELL işlemi için gerekli kontrol
           const existingLogs = await tradeLogRepo.find({
             where: {
               portfolio: { id: portfolio.id },
@@ -86,18 +88,20 @@ export class SeedService {
             this.logger.warn(
               `Insufficient shares for SELL operation on portfolio ${portfolio.name} for share ${share.name}. Available: ${currentQuantity}, required: ${quantity}`,
             );
-            return;
+            return; // Satış mümkün değilse işlemi atla
           }
         }
 
+        // TradeLogs tablosuna kaydet
         await tradeLogRepo.save({
           portfolio,
           share,
           type,
           quantity,
-          price,
+          price, // 2 ondalık basamaklı fiyat
         });
 
+        // Portfolio'nun totalValue değerini güncelle
         if (type === TradeType.BUY) {
           await this.dataSource.manager.increment(
             Portfolio,
@@ -119,12 +123,11 @@ export class SeedService {
         );
       });
 
+      // Tüm işlemler tamamlanana kadar bekle
       await Promise.all(tradeLogsPromises);
     }
   }
 }
-
-//! burası seeder mantıgında calıstıgı ıcın performans uzerıne birşey yapmadım... mantık uzerınden daha çok seeder işlemı adına bu sekılde yaptım...
 
 // Avantajlar
 // Kontrollü Çalıştırma:

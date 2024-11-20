@@ -57,15 +57,6 @@ export class ExchangeService {
       throw new BadRequestException('Share not found');
     }
 
-    // 4. Fiyat Güncellenme Zamanı Kontrolü
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000); // 1 saat önce
-    //not: projede share tablosunda başka bir alan guncellenmedıgı ıcın updatedAt alanını kullandım..
-    if (share.updatedAt < oneHourAgo) {
-      throw new BadRequestException(
-        'The price for this share is outdated. Please update the price before trading.',
-      );
-    }
-
     const price = share.price; // Güncel fiyat
 
     if (type === TradeType.SELL) {
