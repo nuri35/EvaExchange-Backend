@@ -73,7 +73,7 @@ export class ExchangeService {
       }
     }
 
-    await this.tradeLogsRepo.save({
+    return await this.tradeLogsRepo.save({
       portfolio,
       share,
       type,

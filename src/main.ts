@@ -7,9 +7,6 @@ import * as morgan from 'morgan';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { GlobalExceptionFilter } from './shared/http-exception.filter';
 
-// import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-// import { apiDescription } from './document/description';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/v1');
@@ -35,14 +32,6 @@ async function bootstrap() {
     res.removeHeader('date');
     next();
   });
-  // const config = new DocumentBuilder()
-  //   .setTitle('NestJS API')
-  //   .setDescription(apiDescription)
-  //   .setVersion('1.0')
-  //   .addTag('nestjs')
-  //   .build();
-  // const document = SwaggerModule.createDocument(app, config);
-  // SwaggerModule.setup('api/v1/docs', app, document);
 
   logger.log('Starting the application...');
   await app.listen(8000);
