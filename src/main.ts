@@ -35,6 +35,6 @@ async function bootstrap() {
 
   logger.log('Starting the application...');
   await app.listen(8000);
-  logger.log(`Application is running on: http://localhost:3000`);
+  logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
